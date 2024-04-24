@@ -75,11 +75,12 @@ func OpenExternal(logger *zap.SugaredLogger, cmd string, arg string) error {
 	return nil
 }
 
-// Map a integer value in one input range to a integer value in another output range
-func MapIntegerRange(inputValue int, inputMin int, inputMax int, outputMin int, outputMax int) int {
+// Map a float value in one input range to a float value in another output range
+func MapFloatRange(inputValue float64, inputMin float64, inputMax float64, outputMin float64, outputMax float64) float32 {
 	outputRange := outputMax - outputMin + 1 // add 1 to account for both the start and end positions of the range
 	inputRange := inputMax - inputMin + 1    // add 1 to account for both the start and end positions of the range
-	return (inputValue-inputMin)*outputRange/inputRange + outputMin
+	calculatedValue := (inputValue-inputMin)*outputRange/inputRange + outputMin
+	return float32(math.Min(outputMax, calculatedValue))
 }
 
 // NormalizeScalar "trims" the given float32 to 2 points of precision (e.g. 0.15442 -> 0.15)
@@ -111,7 +112,7 @@ func SignificantlyDifferent(old float32, new float32, noiseReductionLevel string
 		significantDifferenceThreshold = 0.015
 		break
 	case noiseReductionNone:
-		significantDifferenceThreshold = 0.01
+		significantDifferenceThreshold = 0.005
 	default:
 		significantDifferenceThreshold = 0.025
 		break

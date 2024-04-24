@@ -268,22 +268,21 @@ func (sio *SerialIO) handleLine(logger *zap.SugaredLogger, line string) {
 			return
 		}
 
-		convertedNumber := util.MapIntegerRange(number, 0, 1023, 0, 100)
+		convertedNumber := util.MapFloatRange(float64(number), 0, 1023, 0, 100)
 		dirtyFloat := float32(convertedNumber) / 100.0
-
-		// normalize it to an actual volume scalar between 0.0 and 1.0 with 2 points of precision
-		normalizedScalar := util.NormalizeScalar(dirtyFloat)
 
 		// if sliders are inverted, take the complement of 1.0
 		if sio.deej.config.InvertSliders {
-			normalizedScalar = 1 - normalizedScalar
+			dirtyFloat = 1 - dirtyFloat
 		}
 
 		// check if it changes the desired state (could just be a jumpy raw slider value)
-		if util.SignificantlyDifferent(sio.currentSliderPercentValues[sliderIdx], normalizedScalar, sio.deej.config.NoiseReductionLevel) {
-
+		if util.SignificantlyDifferent(sio.currentSliderPercentValues[sliderIdx], dirtyFloat, sio.deej.config.NoiseReductionLevel) {
 			// if it does, update the saved value and create a move event
-			sio.currentSliderPercentValues[sliderIdx] = normalizedScalar
+			sio.currentSliderPercentValues[sliderIdx] = dirtyFloat
+
+			// normalize value to an actual volume scalar between 0.0 and 1.0 with 2 points of precision
+			normalizedScalar := util.NormalizeScalar(dirtyFloat)
 
 			moveEvents = append(moveEvents, SliderMoveEvent{
 				SliderID:     sliderIdx,
