@@ -268,8 +268,8 @@ func (sio *SerialIO) handleLine(logger *zap.SugaredLogger, line string) {
 			return
 		}
 
-		// map the value from raw to a "dirty" float between 0 and 1 (e.g. 0.15451...)
-		dirtyFloat := float32(number) / 1023.0
+		convertedNumber := util.MapIntegerRange(number, 0, 1023, 0, 100)
+		dirtyFloat := float32(convertedNumber) / 100.0
 
 		// normalize it to an actual volume scalar between 0.0 and 1.0 with 2 points of precision
 		normalizedScalar := util.NormalizeScalar(dirtyFloat)

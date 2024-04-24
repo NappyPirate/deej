@@ -75,6 +75,13 @@ func OpenExternal(logger *zap.SugaredLogger, cmd string, arg string) error {
 	return nil
 }
 
+// Map a integer value in one input range to a integer value in another output range
+func MapIntegerRange(inputValue int, inputMin int, inputMax int, outputMin int, outputMax int) int {
+	outputRange := outputMax - outputMin + 1 // add 1 to account for both the start and end positions of the range
+	inputRange := inputMax - inputMin + 1    // add 1 to account for both the start and end positions of the range
+	return (inputValue-inputMin)*outputRange/inputRange + outputMin
+}
+
 // NormalizeScalar "trims" the given float32 to 2 points of precision (e.g. 0.15442 -> 0.15)
 // This is used both for windows core audio volume levels and for cleaning up slider level values from serial
 func NormalizeScalar(v float32) float32 {
